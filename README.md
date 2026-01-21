@@ -1,4 +1,4 @@
-```csharp
+'''csharp
 using System.Diagnostics;
 using MsgPollingSystem;
 
@@ -9,9 +9,12 @@ var result = await service.SubmitAsync(42);
 Console.WriteLine(result);
 // 420
 
-await Benchmark.RunAsync();
+await Benchmark.RunAsync(new Driver(), false);
 
 /*
+os : win10
+dotnet 10.0
+
 ---- Benchmark Result ----
 Total Requests : 1,000,000
 Parallelism    : 8
@@ -20,7 +23,6 @@ Avg Latency    : 0.865 μs
 Throughput     : 1,155,955 req/sec
 
 cpu : i3-10100f
-os : win10
 build : debug
 --------------------------
 ---- Benchmark Result ----
@@ -29,8 +31,34 @@ Parallelism    : 8
 Total Time     : 709.84 ms
 Avg Latency    : 0.710 μs
 Throughput     : 1,408,762 req/sec
+cpu : i3-10100f
+build : publish/release
+--------------------------
+Throughput     : ~6,000,000 req/sec
+cpu : i9-13900k 
 build : publish/release
 */
+
+await Benchmark.RunAsync(new DriverWithAsyncLogic(), false);
+await Benchmark.RunAsync(new DriverWithAsyncLogic(), true);
+
+/*
+---- Benchmark Result ----
+Total Requests : 1,000,000
+Parallelism    : 8
+Total Time     : 1677.06 ms
+Avg Latency    : 1.677 μs
+Throughput     : 596,281 req/sec
+---- Benchmark Result ----
+Total Requests : 1,000,000
+Parallelism    : 8
+Total Time     : 675.47 ms
+Avg Latency    : 0.675 μs
+Throughput     : 1,480,443 req/sec
+cpu : i3-10100f
+build : publish/release
+*/
+
 
 public sealed class Driver : IDriver<int, int>
 {
@@ -40,14 +68,28 @@ public sealed class Driver : IDriver<int, int>
     }
 }
 
+public sealed class DriverWithAsyncLogic : IAsyncDriver<int, int>
+{
+    public int Execute(int data)
+    {
+        return data * 10;
+    }
+
+    public async Task<int> ExecuteAsync(int data)
+    {
+        await Task.Yield();
+        return data * 10;
+    }
+}
+
 public static class Benchmark
 {
-    public static async Task RunAsync()
+    public static async Task RunAsync(IDriver<int,int>driver , bool useMultiWorker)
     {
         const int totalRequests = 1_000_000;
         int parallelProducers = Environment.ProcessorCount;
 
-        var service = new ChannelMessageService<int, int>(new Driver());
+        var service = new ChannelMessageService<int, int>(driver , useMultiWorker ? parallelProducers : 1);
         service.Start();
 
         var sw = Stopwatch.StartNew();
@@ -90,4 +132,4 @@ public static class Benchmark
         Console.WriteLine($"Throughput     : {throughput:N0} req/sec");
     }
 }
-```
+'''
