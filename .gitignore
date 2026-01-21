@@ -1,0 +1,35 @@
+# Build outputs
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.csproj
+*.sln
+
+Program.cs
+/update.bat
+
+# Rider / JetBrains
+.idea/
+
+# Environment files
+.env
+*.env.*
+
+# User secrets and config
+appsettings.*.json
+secrets.json
+
+# System-specific files
+Thumbs.db
+*.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Others (optional)
+*.cache
+*.tmp
+*.bak
