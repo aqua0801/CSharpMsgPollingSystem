@@ -1,4 +1,4 @@
-'''csharp
+```csharp
 using System.Diagnostics;
 using MsgPollingSystem;
 
@@ -132,4 +132,4 @@ public static class Benchmark
         Console.WriteLine($"Throughput     : {throughput:N0} req/sec");
     }
 }
-'''
+```
