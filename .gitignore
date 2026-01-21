@@ -1,11 +1,13 @@
 # Build outputs
 bin/
 obj/
+Properties/
 .vs/
 *.user
 *.suo
 *.csproj
 *.sln
+*.pubxml
 
 Program.cs
 /update.bat
